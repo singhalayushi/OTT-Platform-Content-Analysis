@@ -38,6 +38,7 @@ Since, p-value of each group is less than 0.05, it is established that all platf
 
 
 Along with this, it was found that out of 5,174 movies that had Age group available, Disney movies had the highest number movies for younger population as compared to other platforms. 
+
 ![image](https://github.com/singhalayushi/OTT-Platform-Content-Analysis/assets/123263574/1cf580db-d6e4-4851-8b53-51232e301e98)
 
 This data set serves as a basis to apply Chi-square Test which essentially allows to compare proportions of different groups statistically. We used these methods to test our hypothesis that platform and age rating of movies are independent of each other.  
