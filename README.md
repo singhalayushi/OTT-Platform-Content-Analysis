@@ -1,1 +1,4 @@
 # OTT-Platform-Content-Analysis
+
+## Preliminary Discussion & Data Description
+An over-the-top media service is a media service offered directly to viewers via the Internet and is among top business in the world today. In this report we’ve analyzed the data of these OTT platforms such as Netflix, Amazon,  Hulu and Disney+ to understand the content hosted by these platforms. The data for this report is downloaded from Kaggle consisting of 5 data files. Out of these 5 data sets, the main dataset (Movies) comprises of columns such as Title, Release Year, Age group, Rotten Tomatoes Rating and flags indicating the platform on which the movie/show is available. Rest of the 4 datasets have further information such as Director, Cast, Duration(Running time) & Genre of the shows/movies hosted on each platform. These 5 datasets were joined together based on title of the show/movies while retaining the number of rows in the Movies dataset (9515 movies/shows).
