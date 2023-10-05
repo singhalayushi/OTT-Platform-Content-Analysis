@@ -1,0 +1,276 @@
+---
+title: "Final_Project"
+author: "Ayushi Singhal"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Read data from the main excel file
+```{r}
+library(readxl)
+MoviesOnStreamingPlatforms <- read_excel("C:/Users/ayush/OneDrive/Desktop/College/Quarter 1/OPS 801 - Data Analysis/Project/Data File/MoviesOnStreamingPlatforms.xlsx", 
+    sheet = "MoviesOnStreamingPlatforms")
+```
+
+## Read data from the additional netflix excel file
+```{r warning=FALSE}
+library(readxl)
+netflix_titles <- read_excel("C:/Users/ayush/OneDrive/Desktop/College/Quarter 1/OPS 801 - Data Analysis/Project/Data File/netflix_titles.xlsx", 
+    sheet = "netflix_titles")
+```
+
+## Read data from the additional amazon excel file
+```{r}
+library(readxl)
+amazon_prime_titles <- read_excel("C:/Users/ayush/OneDrive/Desktop/College/Quarter 1/OPS 801 - Data Analysis/Project/Data File/amazon_prime_titles.xlsx", 
+    sheet = "amazon_prime_titles")
+```
+
+
+## Read data from the additional Hulu excel file
+```{r warning=FALSE}
+library(readxl)
+hulu_titles <- read_excel("C:/Users/ayush/OneDrive/Desktop/College/Quarter 1/OPS 801 - Data Analysis/Project/Data File/hulu_titles.xlsx", 
+    sheet = "hulu_titles")
+```
+
+## Read data from the additional disney plus excel file
+```{r}
+library(readxl)
+disney_plus_titles <- read_excel("C:/Users/ayush/OneDrive/Desktop/College/Quarter 1/OPS 801 - Data Analysis/Project/Data File/disney_plus_titles.xlsx",
+    sheet = "disney_plus_titles")
+```
+
+
+```{r}
+#Fetching the selected columns from the Netflix additional file and creating a subset of it to have the names of the columns. 
+library(dplyr)
+netflix_titles_subset<-netflix_titles[,c('Title','director','cast','country','duration','listed_in')]
+colnames(netflix_titles_subset)<-c('Title','director_n','cast_n','country_n','duration_n','listed_in_n')
+
+#Joining the additional Netflix file's data with the main file(Using the join on Title)
+MoviesOnStreamingPlatforms_n<-MoviesOnStreamingPlatforms%>%
+  left_join(netflix_titles_subset,by='Title')
+
+#Picking up the unique data
+MoviesOnStreamingPlatforms_n<-unique(MoviesOnStreamingPlatforms_n)
+```
+
+
+```{r}
+#Fetching the selected columns from the Amazon's additional file and creating a subset of it to have the names of the columns. 
+amazon_titles_subset<-amazon_prime_titles[,c('Title','director','cast','country','duration','listed_in')]
+colnames(amazon_titles_subset)<-c('Title','director_a','cast_a','country_a','duration_a','listed_in_a')
+
+#Joining the additional Amazon file's data with the main file(Using the join on Title)
+MoviesOnStreamingPlatforms_na<-MoviesOnStreamingPlatforms_n%>%
+  left_join(amazon_titles_subset,by="Title")
+
+#Picking up the unique data
+MoviesOnStreamingPlatforms_na<-unique(MoviesOnStreamingPlatforms_na)
+```
+
+
+```{r}
+#Fetching the selected columns from the Hulu's additional file and creating a subset of it to have the names of the columns. 
+hulu_titles_subset<-hulu_titles[,c('Title','director','cast','country','duration','listed_in')]
+colnames(hulu_titles_subset)<-c('Title','director_h','cast_h','country_h','duration_h','listed_in_h')
+
+#Joining the additional Hulu's file's data with the main file(Using the join on Title)
+MoviesOnStreamingPlatforms_nah<-MoviesOnStreamingPlatforms_na%>%
+  left_join(hulu_titles_subset,by="Title")
+
+#Picking up the unique data
+MoviesOnStreamingPlatforms_nah<-unique(MoviesOnStreamingPlatforms_nah)
+```
+
+```{r}
+#Fetching the selected columns from the Disney's additional file and creating a subset of it to have the names of the columns. 
+disney_titles_subset<-disney_plus_titles[,c('Title','director','cast','country','duration','listed_in')]
+colnames(disney_titles_subset)<-c('Title','director_d','cast_d','country_d','duration_d','listed_in_d')
+
+#Joining the additional Disney's file's data with the main file(Using the join on Title)
+MoviesOnStreamingPlatforms_nahd<-MoviesOnStreamingPlatforms_nah%>%
+  left_join(disney_titles_subset,by="Title")
+
+#Picking up the unique data
+MoviesOnStreamingPlatforms_nahd<-unique(MoviesOnStreamingPlatforms_nahd)
+
+MoviesOnStreamingPlatforms_nahd
+```
+
+
+
+```{r}
+#Merging the additional fetched columns(Director,Cast,Country,Duration,Listed_In) into one of the type column.
+MoviesOnStreamingPlatforms_nahd%>%
+  mutate(director_n=ifelse(`Prime Video`==1,director_a,ifelse(Hulu==1,director_h,ifelse(`Disney+`==1,director_d,director_n))))
+
+MoviesOnStreamingPlatforms_nahd%>%
+  mutate(cast_n=ifelse(`Prime Video`==1,cast_a,ifelse(Hulu==1,cast_h,ifelse(`Disney+`==1,cast_d,cast_n))))
+
+MoviesOnStreamingPlatforms_nahd%>%
+  mutate(country_n=ifelse(`Prime Video`==1,country_a,ifelse(Hulu==1,country_h,ifelse(`Disney+`==1,country_d,country_n))))
+
+MoviesOnStreamingPlatforms_nahd%>%
+  mutate(duration_n=ifelse(`Prime Video`==1,duration_a,ifelse(Hulu==1,duration_h,ifelse(`Disney+`==1,duration_d,duration_n))))
+
+MoviesOnStreamingPlatforms_nahd%>%
+  mutate(duration_n=ifelse(`Prime Video`==1,listed_in_a,ifelse(Hulu==1,listed_in_h,ifelse(`Disney+`==1,listed_in_d,listed_in_n))))
+
+#Drop the additional junk columns
+##Collects the names of the columns to be dropped
+drops <- c("director_a","director_h","director_d","cast_a","cast_h","cast_d","country_a","country_h","country_d","duration_a","duration_h","duration_d","listed_in_a","listed_in_h","listed_in_d")
+##Dropping off the columns
+MoviesOnStreamingPlatforms_nahd<-MoviesOnStreamingPlatforms_nahd[, !(names(MoviesOnStreamingPlatforms_nahd) %in% drops)]
+
+#Renaming the new columns
+MoviesOnStreamingPlatforms_nahd<-MoviesOnStreamingPlatforms_nahd %>% 
+   rename(
+     director = director_n,
+     cast= cast_n,
+     country=country_n,
+     duration=duration_n,
+     genre=listed_in_n
+     )
+
+#Replacing the commas present in the columns by semi-colons for readable data generation in excel file.
+library(tidyverse)
+MoviesOnStreamingPlatforms_nahd <- MoviesOnStreamingPlatforms_nahd %>%
+    map_df(str_replace, pattern = ",", replacement = ";")
+
+
+
+
+```
+```{r}
+#Data Cleaning
+##Removing rows with no ratings(NA), titles starting with decimal numbers,removal of hash from titles and removing min from duration
+MoviesOnStreamingPlatforms_nahd<-MoviesOnStreamingPlatforms_nahd%>%
+  filter(!is.na(`Rotten Tomatoes`))%>%
+  filter(!grepl("^[0]", Title))%>%
+  mutate(Title = gsub("#", "", Title),
+         duration=gsub("min", "", duration))
+
+```
+
+```{r}
+# Writing data in an excel file
+
+write.csv(MoviesOnStreamingPlatforms_nahd,"C:/Users/ayush/OneDrive/Desktop/College/Quarter 1/OPS 801 - Data Analysis/Project/Data File/MoviesOnStreamingPlatform_updated", row.names=FALSE)
+```
+
+
+# Statistical Analysis
+
+```{r}
+#Splitting the rating's columns
+library(tidyr)
+
+MoviesOnStreamingPlatforms_nahd <- MoviesOnStreamingPlatforms_nahd %>% separate(`Rotten Tomatoes`, sep = "/", into = c('rating','out_of'), remove = FALSE)
+
+#Converting the flagging columns of all the platforms to numeric from string
+MoviesOnStreamingPlatforms_nahd$platform_count<-as.numeric(MoviesOnStreamingPlatforms_nahd$Netflix)+
+  as.numeric(MoviesOnStreamingPlatforms_nahd$`Prime Video`)+
+  as.numeric(MoviesOnStreamingPlatforms_nahd$Hulu)+
+  as.numeric(MoviesOnStreamingPlatforms_nahd$`Disney+`)
+
+#Tabulation for platform count 
+table(MoviesOnStreamingPlatforms_nahd$platform_count)
+str(MoviesOnStreamingPlatforms_nahd)
+
+#Adding a new column 'Platform' converted from the flagging columns to indicate the movies are from which platform.
+MoviesOnStreamingPlatforms_nahd<-MoviesOnStreamingPlatforms_nahd%>%
+  mutate(platform=ifelse(Netflix=='1' & platform_count==1,'Netflix',
+                         ifelse(`Prime Video`==1 & platform_count==1,'Prime',
+                                ifelse(Hulu==1 & platform_count==1,'Hulu',
+                                       ifelse(`Disney+`==1 & platform_count==1,'Disney','multiple_platforms')))))
+MoviesOnStreamingPlatforms_nahd$rating<-as.numeric(MoviesOnStreamingPlatforms_nahd$rating)
+summary(MoviesOnStreamingPlatforms_nahd)
+
+#Tabulation for platform-- States the number of entries for specific platforms(Frequency)
+table(MoviesOnStreamingPlatforms_nahd$platform)
+
+#Gives the Average of the ratings against the Number of Movies on the basis of platform
+MoviesOnStreamingPlatforms_nahd%>%
+  group_by(platform)%>%
+  summarise(movies=n(),
+            avg_rating=mean(rating,na.rm=T))
+
+#Gives the Average of the ratings against the Number of Movies on the basis of age
+MoviesOnStreamingPlatforms_nahd%>%
+  group_by(Age)%>%
+  summarise(movies=n(),
+            avg_rating=mean(rating,na.rm=T))
+
+#Gives the Average of the Ratings & the number of movies on the basis of age and platform
+x<-MoviesOnStreamingPlatforms_nahd%>%
+  group_by(Age,platform)%>%
+  summarise(movies=n(),
+            avg_rating=mean(rating,na.rm=T))
+x
+
+table(MoviesOnStreamingPlatforms_nahd$Age,MoviesOnStreamingPlatforms_nahd$platform)
+
+```
+
+## Chi-Square Testing
+
+$H_0$: Age Ratings of platforms are independent.
+
+$H_a$: Age Ratings of platforms are not independent.
+```{r}
+#Filters the data with age having 'NA' and the titles with multiple platforms. 
+x<-MoviesOnStreamingPlatforms_nahd%>%
+  filter(!is.na(Age) & platform!='multiple_platforms')
+
+#Chi Square test on Age & Platform
+chisq.test(table(x$platform,x$Age))
+
+#Tabulation of Age and platform
+table(x$platform,x$Age)
+
+#Calculating probability
+y<-x%>%
+  group_by(Age)%>%
+  summarise(totals=n())
+y$probability<-y$totals/sum(y$totals)
+
+#Checking total number of titles in each platform
+z<-x%>%
+  group_by(platform)%>%
+  summarise(totals=n())
+
+
+x<-MoviesOnStreamingPlatforms_nahd%>%
+  filter(platform!='multiple_platforms')
+x$platform=as.factor(x$platform)
+
+#Box-plot of Platforms vs Ratings
+boxplot(rating ~ platform, xlab='Platform', ylab='Rating', data=x)
+
+#Bartlett's test to check if k samples have equal variances
+bartlett.test(rating ~ platform, data=x)
+```
+
+
+
+$H_0$: Movie Ratings and Platform are independent.
+$H_a$: Movie Ratings and Platform are not independent.
+```{r}
+#Anova testing 
+anova=aov(x$rating~x$platform)
+summary(anova)
+
+#Tukey's testing
+TukeyHSD(anova, conf.level=.95)
+
+```
+
+
+
